@@ -14,7 +14,7 @@ object Chap6_4 {
   def main(target: html.Div): Unit = {
     val height = input(`type` := "number").render
     val weight = input(`type` := "number").render
-    val bmi = label(0.0).render
+    val bmi    = label(0.0).render
     val button = input(`type` := "button", value := "계산").render
 
     target.appendChild(

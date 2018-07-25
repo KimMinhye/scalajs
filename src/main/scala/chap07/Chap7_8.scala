@@ -5,7 +5,6 @@ import scala.scalajs.js
 import js.Dynamic.{global => g}
 import org.scalajs.dom
 import org.scalajs.dom.{html, document}
-
 import scala.annotation.tailrec
 
 @JSExportTopLevel("Chap7_8")
