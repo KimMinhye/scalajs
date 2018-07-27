@@ -13,7 +13,7 @@ object Chap10_4 {
   val TIME_INTERVAL                                  = 1500
   val DISPLAY_TIME                                   = 1050
   var timer: js.UndefOr[js.timers.SetIntervalHandle] = js.undefined
-  val moles                                          = Set[Mole]()
+  var moles                                          = Set[Mole]()
 
   @JSExport
   def main(): Unit = {
@@ -25,7 +25,7 @@ object Chap10_4 {
     for (i <- 0 to nx - 1; j <- 0 to ny - 1) {
       val mole = makeMole(i, j)
       document.body.appendChild(mole)
-      moles + mole
+      moles += mole
     }
     moles
   }
@@ -52,7 +52,7 @@ object Chap10_4 {
       val mole = e.currentTarget.asInstanceOf[Mole]
       if (mole.style.opacity.toDouble > 0.5) {
         document.body.removeChild(mole)
-        moles - mole
+        moles -= mole
       }
     }
   }
