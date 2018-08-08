@@ -5,7 +5,7 @@ import scala.scalajs.js
 import js.Dynamic.{global => g}
 import org.scalajs.dom
 import org.scalajs.dom.{html, document, DOMList}
-import org.scalajs.dom.raw.HTMLCollection
+import org.scalajs.dom.raw.{HTMLCollection, Attr}
 
 @JSExportTopLevel("Chap14")
 object Chap14 {
@@ -50,19 +50,42 @@ object Chap14 {
   @JSExport
   def getElementsByName(): Unit = {
     val dogs =
-      g.document.getElementsByName("dog").asInstanceOf[HTMLCollection]
-    dogs(1).asInstanceOf[html.Input].value = "corgi"
-    dogs(1).nextElementSibling.innerHTML   = "웰시 코기<br>"
+      document.getElementsByName("dog").asInstanceOf[js.Array[html.Input]]
+    dogs(1).value = "corgi"
+    dogs(1).nextElementSibling.innerHTML = "웰시 코기"
     for (i <- 0 to dogs.length - 1) {
-      g.console.log(i + "번째의 값 : " + dogs(i).getAttribute("value"))
+      g.console.log(i + " 번째 값 : " + dogs(i).value)
+    }
+  }
 
-}
-    // val dogs =
-    //   document.getElementsByName("dog").asInstanceOf[js.Array[html.Input]]
-    // dogs(1).value = "corgi"
-    // dogs(1).nextElementSibling.innerHTML = "웰시 코기"
-    // for (i <- 0 to dogs.length - 1) {
-    //   g.console.log(i + " 번째 값 : " + dogs(i).value)
-    // }
+  @JSExport
+  def getAttribute(): Unit = {
+    val fm   = document.getElementById("favorite")
+    val list = fm.children.asInstanceOf[js.Array[html.Object]]
+    val result = list
+      .filter(o => o.nodeName == "INPUT" && o.`type` == "checkbox")
+      .map(o => o.getAttribute("value"))
+    g.console.log(result.join(","))
+  }
+
+  @JSExport
+  def setAttribute(): Unit = {
+    val anchor = document.getElementById("school")
+    anchor.setAttribute("href", "http://www.gilbut.co.kr/")
+    g.console.log(anchor)
+  }
+
+  @JSExport
+  def attributes(): Unit = {
+    val para = document.getElementById("controls")
+    val list =
+      para.firstElementChild.attributes.asInstanceOf[js.Array[Attr]]
+    list.foreach(o => g.console.log(o.name + " : " + o.value))
+  }
+
+  @JSExport
+  def getTextContent(): Unit = {
+    val para = document.getElementById("cards")
+    g.console.log(para.textContent)
   }
 }
