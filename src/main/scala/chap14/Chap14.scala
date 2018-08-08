@@ -104,4 +104,11 @@ object Chap14 {
     element.textContent = "불독"
     doglist.insertBefore(element, doglist.children(1))
   }
+
+  @JSExport
+  def scrollTo(): Unit = {
+    val element = document.getElementById("sec3")
+    val rect = element.getBoundingClientRect()
+    // g.scrollTo(rect.left + getScrollLeft(), rect.top + getScrollTop())
+  }
 }
