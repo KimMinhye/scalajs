@@ -88,4 +88,20 @@ object Chap14 {
     val para = document.getElementById("cards")
     g.console.log(para.textContent)
   }
+
+  @JSExport
+  def createElement(): Unit = {
+    val doglist = document.getElementById("doglist")
+    val element = document.createElement("li")
+    element.textContent = "불독"
+    doglist.appendChild(element)
+  }
+
+  @JSExport
+  def insertBefore(): Unit = {
+    val doglist = document.getElementById("doglist")
+    val element = document.createElement("li")
+    element.textContent = "불독"
+    doglist.insertBefore(element, doglist.children(1))
+  }
 }
