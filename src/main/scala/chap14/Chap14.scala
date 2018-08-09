@@ -4,11 +4,14 @@ import scala.scalajs.js.annotation.{JSExportTopLevel, JSExport}
 import scala.scalajs.js
 import js.Dynamic.{global => g}
 import org.scalajs.dom
-import org.scalajs.dom.{html, document, DOMList}
-import org.scalajs.dom.raw.{HTMLCollection, Attr}
+import org.scalajs.dom.html
+import org.scalajs.dom.raw.{Event, MouseEvent, Element, Attr}
+import scalatags.JsDom.all._
 
 @JSExportTopLevel("Chap14")
 object Chap14 {
+  val document = g.document
+
   @JSExport
   def getElementById(): Unit = {
     val element = document.getElementById("second")
@@ -112,7 +115,61 @@ object Chap14 {
 
     val element = document.getElementById("sec3")
     val rect    = element.getBoundingClientRect()
-    g.scrollTo(rect.left + GetScroll.getScrollLeft(),
-               rect.top + GetScroll.getScrollTop())
+    g.scrollTo(rect.left.asInstanceOf[Double] + GetScroll.getScrollLeft(),
+               rect.top.asInstanceOf[Double] + GetScroll.getScrollTop())
+  }
+
+  @JSExport
+  def htmlForm(): Unit = {
+    val inputs =
+      document.forms.form1.elements.sex.asInstanceOf[js.Array[html.Input]]
+    for (i <- 0 to inputs.length - 1) {
+      g.console.log(inputs(i).value)
+    }
+  }
+
+  @JSExport
+  def backgroundColor(): Unit = {
+    val element = document.getElementById("title")
+    element.onclick = (_: MouseEvent) => {
+      element.style.backgroundColor = "pink"
+    }
+  }
+
+  @JSExport
+  def iconEditor(nx: Int, ny: Int): Unit = {
+    val color                  = input(`type` := "color").render
+    val clear                  = input(`type` := "button", value := "모두삭제").render
+    lazy val (tableSet, cells) = makeTable
+
+    def makeTable: (html.Table, Seq[html.TableCell]) = {
+      val (rows, cells) =
+        Seq
+          .fill(ny)(Seq.fill(nx)(makeCell))
+          .foldRight((Seq[html.TableRow](), Seq[html.TableCell]())) {
+            (x, acc) =>
+              (tr(x).render +: acc._1, x ++ acc._2)
+          }
+      (table(borderCollapse := "collapse", marginTop := "5px", rows).render,
+       cells)
+    }
+
+    def makeCell: html.TableCell = {
+      val cell =
+        td(width := "15px", height := "15px", border := "1px solid gray").render
+      cell.onclick = (e: MouseEvent) => {
+        e.target.asInstanceOf[html.TableCell].style.backgroundColor =
+          color.value
+      }
+      cell
+    }
+
+    clear.onclick = (_: MouseEvent) => {
+      cells.foreach(_.style.backgroundColor = "white")
+    }
+
+    document.body.appendChild(color)
+    document.body.appendChild(clear)
+    document.body.appendChild(tableSet)
   }
 }
