@@ -107,12 +107,12 @@ object Chap14 {
 
   @JSExport
   def scrollTo(): Unit = {
-    if('scrollRestoration' in g.history) {
+    if (g.history.asInstanceOf[js.Object].hasOwnProperty("scrollRestoration"))
       g.history.scrollRestoration = "manual"
-    }
 
     val element = document.getElementById("sec3")
-    val rect = element.getBoundingClientRect()
-    g.scrollTo(rect.left + GetScroll.getScrollLeft(), rect.top + GetScroll.getScrollTop())
+    val rect    = element.getBoundingClientRect()
+    g.scrollTo(rect.left + GetScroll.getScrollLeft(),
+               rect.top + GetScroll.getScrollTop())
   }
 }
