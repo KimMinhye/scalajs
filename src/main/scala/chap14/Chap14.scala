@@ -4,7 +4,7 @@ import scala.scalajs.js.annotation.{JSExportTopLevel, JSExport}
 import scala.scalajs.js
 import js.Dynamic.{global => g}
 import org.scalajs.dom
-import org.scalajs.dom.html
+import org.scalajs.dom.{html, DOMTokenList}
 import org.scalajs.dom.raw.{Event, MouseEvent, Element, Attr}
 import scalatags.JsDom.all._
 
@@ -171,5 +171,27 @@ object Chap14 {
     document.body.appendChild(color)
     document.body.appendChild(clear)
     document.body.appendChild(tableSet)
+  }
+
+  @JSExport
+  def className(): Unit = {
+    val element = document.getElementById("title")
+    element.onmouseover = (_: MouseEvent) => {
+      element.className = "emphasize"
+    }
+
+    element.onmouseout = (_: MouseEvent) => {
+      element.className = ""
+    }
+  }
+
+  @JSExport
+  def classList(): Unit = {
+    val element = document.getElementById("note1")
+    val list    = element.classList.asInstanceOf[DOMTokenList]
+    list.toggle("invisible")
+    g.console.log(element.className)
+    list.toggle("invisible")
+    g.console.log(element.className)
   }
 }
