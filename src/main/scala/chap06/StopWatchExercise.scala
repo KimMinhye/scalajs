@@ -12,9 +12,9 @@ import org.scalajs.dom.raw.{MouseEvent}
 object StopWatchExercise {
   @JSExport
   def main(): Unit = {
-    val startButton = document.getElementById("start").asInstanceOf[html.Button]
-    val stopButton = document.getElementById("stop").asInstanceOf[html.Button]
-    val display = document.getElementById("display")
+    val startButton                                    = document.getElementById("start").asInstanceOf[html.Button]
+    val stopButton                                     = document.getElementById("stop").asInstanceOf[html.Button]
+    val display                                        = document.getElementById("display")
     var timer: js.UndefOr[js.timers.SetIntervalHandle] = js.undefined
 
     startButton.onclick = (_: MouseEvent) => start()

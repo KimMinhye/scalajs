@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Simple Painter</title>
+    <script type="text/javascript" src="../../scalajsexamples-fastopt.js"></script>
+    <script type="text/javascript" src="/workbench.js"></script>
+    <script>
+        window.onload = function()
+        {
+            Painter.createPainter(document.body, document.getElementById(
+                'canvas'));
+        };
+    </script>
+</head>
+
+<body>
+    <div>
+        <canvas style="display: block" id="canvas" width="800" height="600" />
+    </div>
+</body>
+
+</html>

@@ -1,5 +1,9 @@
 package scalaJSExample
 
+import scala.util.{Success}
+import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.scalajs.js.timers._
 import scala.scalajs.js.annotation.{JSExportTopLevel, JSExport}
 import scala.scalajs.js
 import js.Dynamic.{global => g}
@@ -79,14 +83,15 @@ object Chap15 {
   def showKey(): Unit = {
     val display = document.getElementById("display")
     val showKey = (e: KeyboardEvent) => {
-      val prop = Set("altKey",
-                     "ctrlKey",
-                     "shiftKey",
-                     "metaKey",
-                     "key",
-                     "code",
-                     "keyCode")
-      display.innerHTML = prop.map(prop => "<br>" + prop + " : ").mkString
+      val stringBuilder = StringBuilder.newBuilder
+      stringBuilder.append("<br> altKey : " + e.altKey)
+      stringBuilder.append("<br> ctrlKey : " + e.ctrlKey)
+      stringBuilder.append("<br> shiftKey : " + e.shiftKey)
+      stringBuilder.append("<br> metaKey : " + e.metaKey)
+      stringBuilder.append("<br> key : " + e.key)
+      stringBuilder.append(
+        "<br> keyCode : " + e.keyCode + " -> " + e.keyCode.toChar)
+      display.innerHTML = stringBuilder.toString
     }
     document.addEventListener("keydown", showKey, false)
   }
@@ -124,5 +129,31 @@ object Chap15 {
       console.log("inner2 (2)")
     }, false)
 
+  }
+
+  @JSExport
+  def thisListener(): Unit = {
+    val person = Person("Tom")
+    val button = document.getElementById("button")
+    button.addEventListener("click", (_: MouseEvent) => person.sayHello, false)
+  }
+
+  @JSExport
+  def promise(): Unit = {
+    Future {
+      setTimeout(1000)((_: html.Object) => g.console.log("A"))
+    } andThen {
+      case Success(_) => g.console.log("B")
+    }
+  }
+
+  case class Person(name: String) extends SayHello {
+    override def sayHello(): Unit = {
+      console.log("Hello! " + name)
+    }
+  }
+
+  trait SayHello {
+    def sayHello(): Unit
   }
 }
