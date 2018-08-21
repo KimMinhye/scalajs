@@ -6,6 +6,11 @@
     <script type="text/javascript" src="../../scalajsexamples-fastopt.js"></script>
     <script type="text/javascript" src="/workbench.js"></script>
     <script>
+        function show(data)
+        {
+            console.log("name: " + data.name);
+            console.log("price: " + data.price);
+        }
         window.onload = function()
         {
             Chap16.jsonp();
@@ -14,7 +19,6 @@
 </head>
 
 <body>
-    <p id="view"></p>
 </body>
 
 </html>
