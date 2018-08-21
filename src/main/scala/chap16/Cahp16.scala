@@ -6,7 +6,7 @@ import js.Dynamic.{global => g}
 import scala.scalajs.js.JSON
 import org.scalajs.dom
 import org.scalajs.dom.html
-import org.scalajs.dom.raw.{Event, XMLHttpRequest, MessageEvent}
+import org.scalajs.dom.raw.{Event, XMLHttpRequest, MouseEvent, MessageEvent}
 
 @JSExportTopLevel("Chap16")
 object Chap16 {
@@ -53,17 +53,17 @@ object Chap16 {
     val message      = g.document.getElementById("message")
     val button       = g.document.getElementById("button")
     val targetOrigin = "/"
-    button.addEventListener("click", (_: Event) => {
+    button.addEventListener("click", (_: MouseEvent) => {
       frameWindow.postMessage(message.value, targetOrigin)
     }, false)
   }
 
   @JSExport
   def otherDomain(): Unit = {
-    val display = g.document.getElementById("dispaly").asInstanceOf[html.Div]
+    val display = g.document.getElementById("display").asInstanceOf[html.Div]
     g.window.addEventListener("message", (e: MessageEvent) => {
       val sourceOrigin = g.location.origin
-      if (e.origin == sourceOrigin) return
+      if (e.origin != sourceOrigin) return
       display.textContent = e.data.toString
     }, false)
   }
