@@ -28,11 +28,13 @@ object Paint {
   def createCanvas(canvasWidth: Int,
                    canvasHeight: Int): (html.Canvas, Ctx2D) = {
     val can = canvas(id := "canvas",
-                     width := canvasWidth,
-                     height := canvasHeight,
+                     // width := canvasWidth,
+                     // height := canvasHeight,
                      border := "1px solid gray",
                      cursor := "pointer").render
-    val ctx = canvas.render.getContext("2d").asInstanceOf[Ctx2D]
+    can.width = canvasWidth
+    can.height = canvasHeight
+    val ctx = can.getContext("2d").asInstanceOf[Ctx2D]
 
     can.addEventListener(
       "mousedown",
