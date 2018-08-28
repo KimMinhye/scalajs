@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <title>드래그 앤 드롭 예제</title>
+    <script type="text/javascript" src="../../scalajsexamples-fastopt.js"></script>
+    <script type="text/javascript" src="/workbench.js"></script>
+    <script>
+        window.onload = function()
+        {
+            Chap19.dragAndDrop_1();
+        };
+    </script>
+    <style>
+        #color {
+            margin=botton: 10px
+        }
+
+        #dropbox {
+            width: 150px;
+            padding: 50px;
+            border: 1px solid gray;
+        }
+    </style>
+</head>
+
+<body>
+    <input id="color" type="color" draggable="true">
+    <div id="dropbox">이곳에 드롭하세요</div>
+</body>
+
+</html>

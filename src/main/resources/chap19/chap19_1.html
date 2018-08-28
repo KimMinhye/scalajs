@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <title>드롭하는 영역을 사용자에게 알리기</title>
+    <script type="text/javascript" src="../../scalajsexamples-fastopt.js"></script>
+    <script type="text/javascript" src="/workbench.js"></script>
+    <script>
+        window.onload = function()
+        {
+            Chap19.dragAndDrop();
+        };
+    </script>
+    <style>
+        #dragbox {
+            width: 150px;
+            border: 10px solid blue;
+        }
+
+        #dropbox {
+            width: 150px;
+            padding: 50px;
+            border: 10px solid blue;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="dragbox" draggable="true">이것을 드래그하세요</div>
+    <div id="dropbox">이곳에 드롭하세요</div>
+</body>
+
+</html>
