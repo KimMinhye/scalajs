@@ -6,7 +6,16 @@ import scala.scalajs.js
 import js.Dynamic.{global => g}
 import org.scalajs.dom
 import org.scalajs.dom.html
-import org.scalajs.dom.raw.{Event, MouseEvent, KeyboardEvent, ImageData}
+import org.scalajs.dom.raw.{
+  Event,
+  MouseEvent,
+  KeyboardEvent,
+  DragEvent,
+  ImageData,
+  FileList,
+  FileReader,
+  URL
+}
 import scalatags.JsDom.all._
 
 @JSExportTopLevel("NewPainter")
@@ -15,6 +24,8 @@ object NewPainter {
   val document                                               = g.document
   val controls: LinkedHashMap[String, (Ctx2D) => html.Label] = LinkedHashMap()
   val paintTools: LinkedHashMap[String, (MouseEvent, Ctx2D) => Unit] =
+    LinkedHashMap()
+  val filterTools: LinkedHashMap[String, (ImageData) => ImageData] =
     LinkedHashMap()
   val colorInput        = input(`type` := "color").render
   var paintTool: String = ""
@@ -125,6 +136,77 @@ object NewPainter {
     label("투명도 : ", ip).render
   }
 
+  controls += "filter" -> { (ctx: Ctx2D) =>
+    val DEFAULT_FILTER = 0
+    val slt            = select().render
+    slt.appendChild(option(value := "filter", "필터").render)
+    filterTools.foreach {
+      case (k, v) => slt.appendChild(option(value := k, k).render)
+    }
+    slt.selectedIndex = DEFAULT_FILTER
+    slt.addEventListener(
+      "change",
+      (_: Event) => {
+        val filterTool = slt.value
+        val inputImage =
+          ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height)
+        val outputImage = filterTools(filterTool)(inputImage)
+        ctx.putImageData(outputImage, 0, 0)
+        slt.selectedIndex = DEFAULT_FILTER
+      },
+      false
+    )
+    label(" ", slt).render
+  }
+
+  controls += "save" -> { (ctx: Ctx2D) =>
+    val ip = input(`type` := "button", value := "저장").render
+    ip.addEventListener("click", (_: Event) => {
+      val dataURL = ctx.canvas.toDataURL("image/jpeg")
+      g.open(dataURL, "save")
+    }, false)
+    label(" ", ip).render
+  }
+
+  controls += "file" -> { (ctx: Ctx2D) =>
+    val ip = input(`type` := "file").render
+    ip.addEventListener(
+      "change",
+      (_: Event) => {
+        val fs = ip.files.asInstanceOf[FileList]
+        if (fs.length > 0) {
+          val reader = new FileReader()
+          // if (fs.length == 0) return
+          reader.addEventListener("load", (_: Event) => {
+            loadImageURL(ctx, reader.result)
+          }, false)
+          reader.readAsDataURL(fs(0))
+        }
+      },
+      false
+    )
+    label(" ", ip).render
+  }
+
+  filterTools += "blur" -> { (inputImage: ImageData) =>
+    val size = 2
+    val w: List[List[Int]] =
+      List.tabulate(2 * size + 1)(_ => List.tabulate(2 * size + 1)(_ => 1))
+    weightedAverageFilter(inputImage, size, w, true, 0)
+  }
+
+  filterTools += "sharp" -> { (inputImage: ImageData) =>
+    val w: List[List[Int]] =
+      List(List(0, -1, 0), List(-1, 5, -1), List(0, -1, 0))
+    weightedAverageFilter(inputImage, 1, w, false, 0)
+  }
+
+  filterTools += "emboss" -> { (inputImage: ImageData) =>
+    val w: List[List[Int]] =
+      List(List(-1, 0, 0), List(0, 0, 0), List(0, 0, 1))
+    weightedAverageFilter(inputImage, 1, w, false, 128)
+  }
+
   @JSExport
   def createPainter(parent: html.Body, width: Int, height: Int): Unit = {
     val title         = h2("Simple Painter").render
@@ -152,6 +234,19 @@ object NewPainter {
         paintTools(paintTool)(e, ctx)
       },
       false
+    )
+
+    can.addEventListener("dragover", (e: DragEvent) => e.preventDefault, false)
+
+    can.addEventListener(
+      "drop",
+      (e: DragEvent) => {
+        val files = e.dataTransfer.files
+        if (files(0).`type`.substring(0, 6) == "image/") {
+          loadImageURL(ctx, URL.createObjectURL(files(0)))
+          e.preventDefault
+        }
+      }
     )
     (can, ctx)
   }
@@ -188,5 +283,76 @@ object NewPainter {
       }
 
     document.addEventListener("mouseup", mouseUpEvent, false)
+  }
+
+  def loadImageURL(ctx: Ctx2D, url: Any): Unit = {
+    val image = document.createElement("img").asInstanceOf[html.Image]
+    image.addEventListener(
+      "load",
+      (_: Event) => {
+        val width: Int        = image.width.asInstanceOf[Int]
+        val height: Int       = image.height.asInstanceOf[Int]
+        val canvasWidth: Int  = ctx.canvas.width
+        val canvasHeight: Int = ctx.canvas.height
+        val factor =
+          Math.min(canvasWidth / width, canvasHeight / height)
+        val wshift     = (canvasWidth - factor * width) / 2
+        val hshift     = (canvasHeight - factor * height) / 2
+        val savedColor = ctx.fillStyle
+        ctx.fillStyle = "white"
+        ctx.fillRect(0, 0, canvasWidth, canvasHeight)
+        ctx.drawImage(image,
+                      0,
+                      0,
+                      width,
+                      height,
+                      wshift,
+                      hshift,
+                      width * factor,
+                      height * factor)
+        ctx.fillStyle = savedColor
+      },
+      false
+    )
+    image.src = url.toString
+  }
+
+  def weightedAverageFilter(image: ImageData,
+                            n: Int,
+                            weight: List[List[Int]],
+                            keepBrightness: Boolean,
+                            offset: Int): ImageData = {
+    val width  = image.width
+    val height = image.height
+    val outputImage =
+      canvas.render
+        .getContext("2d")
+        .asInstanceOf[Ctx2D]
+        .getImageData(0, 0, width, height)
+
+    for (x <- 0 to width; y <- 0 to height) {
+      val iR = 4 * (width * y + x)
+      for (i <- 0 to 3) {
+        var average   = 0
+        var weightSum = 0
+        for (ix <- -n to n) {
+          val xp = x + ix
+          if (xp >= 0 && xp < width) {
+            for (iy <- -n to n) {
+              val yp = y + iy
+              if (yp > 0 && yp < height) {
+                val w = weight(iy + n)(ix + n)
+                weightSum += w
+                average += w * image.data(4 * (width * yp + xp) + i)
+              }
+            }
+          }
+        }
+        if (keepBrightness) average /= weightSum
+        outputImage.data(iR + i) = average + offset
+      }
+      outputImage.data(iR + 3) = image.data(iR + 3)
+    }
+    outputImage
   }
 }
